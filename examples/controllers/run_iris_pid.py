@@ -140,6 +140,7 @@ class PIDPolicy(Policy):
 
     def reset(self):
         self.controller = PIDController(pid_roll = self.r, pid_pitch = self.p, pid_yaw = self.y )
+        print("reset")
 
 def eval(env, pi):
     actuals = []
