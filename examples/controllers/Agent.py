@@ -2,6 +2,7 @@
 import os
 from baselines.common import tf_util as U
 from baselines import logger
+import tensorflow as tf
 import gymfc
 import argparse
 import numpy as np
@@ -127,10 +128,12 @@ def plot_step_response(desired, actual,
 
 
 def main():
-    parser = argparse.ArgumentParser()
+
+    parser = argparse.ArgumentParser("Evaluate a PID controller")
+    parser.add_argument('--env-id', help="The Gym environement ID", type=str,
+                        default="AttFC_GyroErr-MotorVel_M4_Ep-v0")
+    parser.add_argument('--seed', help='RNG seed', type=int, default=17)
     logger.configure()
-    parser.add_argument('--env', type=str)
-    parser.add_argument('--seed', help='RNG seed', type=int, default=0)
     parser.add_argument('--model-path', default=os.path.join(logger.get_dir(), 'humanoid_policy'))
     parser.add_argument('--play', action="store_true", default=False)
     parser.add_argument('--num-timesteps', type=int, default=1e7)
@@ -139,6 +142,10 @@ def main():
 
     if not args.play:
         # train the model
+        checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=model)
+        manager = tf.contrib.checkpoint.CheckpointManager(
+            checkpoint, directory="/tmp/model", max_to_keep=5)
+        status = checkpoint.restore(manager.latest_checkpoint)
         train(num_timesteps=args.num_timesteps, seed=args.seed, model_path=args.model_path, env_id=args.env)
     else:
         print(" Making env=", args.env)
