@@ -127,16 +127,17 @@ def plot_step_response(desired, actual,
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    logger.configure()
-    parser.add_argument('--env', type=str)
+    parser = argparse.ArgumentParser("Evaluate a PID controller")
+
+    parser.add_argument('--env', help = "The GYM environment ID", type = str,
+                        default = "AttFC_GyroERR_MotorVel_M4_Ep-v0")
     parser.add_argument('--seed', help='RNG seed', type=int, default=0)
+    logger.configure()
     parser.add_argument('--model-path', default=os.path.join(logger.get_dir(), 'humanoid_policy'))
     parser.add_argument('--play', action="store_true", default=False)
     parser.add_argument('--num-timesteps', type=int, default=1e7)
 
     args = parser.parse_args()
-
     if not args.play:
         # train the model
         train(num_timesteps=args.num_timesteps, seed=args.seed, model_path=args.model_path, env_id=args.env)
